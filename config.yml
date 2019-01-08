@@ -1,5 +1,5 @@
 spotitagger:
-  folder:
+  folder   : prompt
   log-level: INFO
   overwrite: prompt
-  username : 
+  username : prompt
