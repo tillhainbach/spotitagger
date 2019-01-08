@@ -1,4 +1,5 @@
 spotitagger:
-  folder: /Users/tillhainbach/Music/Konvertiert vonMediaHuman
+  folder: 
   log-level: INFO
   overwrite: prompt
+  username :

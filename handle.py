@@ -8,9 +8,10 @@ import sys
 _LOG_LEVELS_STR = ['INFO', 'WARNING', 'ERROR', 'DEBUG']
 
 default_conf = { 'spotitagger':
-                 { 'folder'                 : os.path.join(os.path.expanduser("~"), 'Music'),
+                 { 'folder'                 : None,
                    'overwrite-metadata'     : True,
-                   'log-level'              : 'INFO' }
+                   'log-level'              : 'INFO',
+                   'username'               :  None }
                }
 
 
@@ -23,7 +24,7 @@ def log_leveller(log_level_str):
 def merge(default, config):
     """ Override default dict with config dict. """
     merged = default.copy()
-    merged.update(config)
+    merged.update({ k: v for k,v in config.items() if v })
     return merged
 
 def get_config(config_file):
@@ -73,9 +74,15 @@ def get_arguments(raw_args = None, to_group = True, to_merge = True):
         group.add_argument(
             '-p', '--playlist', help='tag songs based on preexisting Spotify playlist')
 
-    parser.add_argument(
-        '-f', '--folder', default=os.path.relpath(config['folder'], os.getcwd()),
-            help = 'path to folder where songs are stored in')
+    default_folder = config['folder']
+    if default_folder:
+        parser.add_argument(
+            '-f', '--folder', default=os.path.relpath(default_folder, os.getcwd()),
+                help = 'path to folder where songs are stored in', required = True)
+    else:
+        parser.add_argument(
+            '-f', '--folder', help = 'path to folder where songs are stored in',
+            required = True)
     parser.add_argument(
         '-ll', '--log-level', default=config['log-level'],
         choices = _LOG_LEVELS_STR,
@@ -88,6 +95,9 @@ def get_arguments(raw_args = None, to_group = True, to_merge = True):
         '-o', '--overwrite', default = config['overwrite-metadata'],
         type=string_to_boolean, choices = [True, False, 'merge'],
         help = 'overwrite existing metadata infos. Options are True, False, merge')
+    parser.add_argument(
+        '-u', '--username', default = config['username'],
+        help = 'your spotify username')
 
     parsed = parser.parse_args(raw_args)
 

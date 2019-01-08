@@ -1,0 +1,20 @@
+[31mERROR:[39m
+    Traceback (most recent call last):
+      File "spotitagger.py", line 94, in <module>
+        benchmark(main_playlist, const.args.playlist, const.args.folder, audiofiles)
+      File "spotitagger.py", line 52, in benchmark
+        func(*args, **kwargs)
+      File "spotitagger.py", line 59, in main_playlist
+        sp = SpotifyHelperTools(const.args.username)
+      File "/Users/tillhainbach/Documents/GitHub/spotitagger/SpotifyHelperTools.py", line 70, in __init__
+        self.sp = self.getUser() # Creates Spotify Instance
+      File "/Users/tillhainbach/Documents/GitHub/spotitagger/SpotifyHelperTools.py", line 76, in getUser
+        token = self.getUserToken()
+      File "/Users/tillhainbach/Documents/GitHub/spotitagger/SpotifyHelperTools.py", line 85, in getUserToken
+        username = input("Please enter your Spotify username: ")
+    KeyboardInterrupt
+[33mWARNING:[39m No .m4a files in directory. This program only supports audiofiles in M4A-Format. Exiting program
+[33mWARNING:[39m No .m4a files in directory. This program only supports audiofiles in M4A-Format. Exiting program
+[33mWARNING:[39m No .m4a files in directory. This program only supports audiofiles in M4A-Format. Exiting program
+[33mWARNING:[39m No .m4a files in directory. This program only supports audiofiles in M4A-Format. Exiting program
+[33mWARNING:[39m No .m4a files in directory. This program only supports audiofiles in M4A-Format. Exiting program

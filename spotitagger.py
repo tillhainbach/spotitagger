@@ -56,7 +56,7 @@ def benchmark (func, *args, **kwargs):
 def main_playlist(uri, path, audiofiles):
     '''main function, looks up all audio files in path in playlist uri and embeds
     the metadata taken from spotify web api into the respective audio file.'''
-    sp = SpotifyHelperTools()
+    sp = SpotifyHelperTools(const.args.username)
     result = sp.sp.playlist(uri, fields = 'tracks.items')['tracks']['items']
     if not result:
         # abort if an empty spotify playlist was provided

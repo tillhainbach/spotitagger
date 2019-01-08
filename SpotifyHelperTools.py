@@ -58,7 +58,7 @@ class SpotifyHelperTools:
                 dead.add(ref)
         cls._instances -= dead
 
-    def __init__(self):
+    def __init__(self, username = None):
         parser = SafeConfigParser() #Reads config.ini file for API keys
         parser.read('config.ini')
         self.CLIENT_ID = parser.get('spotify', 'CLIENT_ID')
@@ -66,6 +66,7 @@ class SpotifyHelperTools:
         #self.REDIRECT_URI = parser.get('spotify', 'REDIRECT_URI')
         #Allows program to access/edit private and public playslist
         self.SCOPE = "playlist-read-private playlist-modify-private playlist-read-collaborative playlist-modify-public"
+        self.username = username
         self.sp = self.getUser() # Creates Spotify Instance
         self.id = self.sp.me()['id'] # Gets ID of authenticating user
         self._instances.add(weakref.ref(self)) #keeps track of runnning instances
@@ -79,7 +80,9 @@ class SpotifyHelperTools:
 
     def getUserToken(self):
         """ Gets authentication token from user"""
-        username = input("Please enter your Spotify username: ")
+        username = self.username
+        if not username:
+            username = input("Please enter your Spotify username: ")
         token = util.prompt_for_user_token(username = username, scope = self.SCOPE, client_id = self.CLIENT_ID, client_secret = self.CLIENT_SECRET)#, redirect_uri = self.REDIRECT_URI)
         return token
 
