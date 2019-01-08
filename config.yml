@@ -1,5 +1,5 @@
 spotitagger:
-  folder: 
+  folder:
   log-level: INFO
   overwrite: prompt
-  username :
+  username : theodor.weiswurst
