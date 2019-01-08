@@ -20,7 +20,7 @@ pip install -r requirements.txt
 python spotitagger.py -p "your spotify playlist id/uri/url" -f "path/to/your/musicfiles"
 ```
 
-you can add a defaul folder and username (and other options) to config.yml
+you can add a default folder and username (and other options) to config.yml
 
 Only M4A/MP4 audiofiles are supported, at the moment.
 
