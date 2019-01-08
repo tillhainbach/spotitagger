@@ -8,7 +8,7 @@ import sys
 _LOG_LEVELS_STR = ['INFO', 'WARNING', 'ERROR', 'DEBUG']
 
 default_conf = { 'spotitagger':
-                 { 'folder'                 : None,
+                 { 'folder'                 : os.path.join(os.path.expanduser('~'),'Music'),
                    'overwrite-metadata'     : True,
                    'log-level'              : 'INFO',
                    'username'               :  None }
@@ -74,15 +74,15 @@ def get_arguments(raw_args = None, to_group = True, to_merge = True):
         group.add_argument(
             '-p', '--playlist', help='tag songs based on preexisting Spotify playlist')
 
-    default_folder = config['folder']
-    if default_folder:
-        parser.add_argument(
-            '-f', '--folder', default=os.path.relpath(default_folder, os.getcwd()),
-                help = 'path to folder where songs are stored in', required = True)
-    else:
-        parser.add_argument(
-            '-f', '--folder', help = 'path to folder where songs are stored in',
-            required = True)
+    #default_folder = config['folder']
+    #if default_folder:
+    parser.add_argument(
+        '-f', '--folder', default=os.path.relpath(config['folder'], os.getcwd()),
+            help = 'path to folder where songs are stored in', required = True)
+    # else:
+    #     parser.add_argument(
+    #         '-f', '--folder', help = 'path to folder where songs are stored in',
+    #         required = True)
     parser.add_argument(
         '-ll', '--log-level', default=config['log-level'],
         choices = _LOG_LEVELS_STR,
