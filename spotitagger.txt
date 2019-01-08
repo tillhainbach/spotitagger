@@ -18,3 +18,5 @@
 [33mWARNING:[39m No .m4a files in directory. This program only supports audiofiles in M4A-Format. Exiting program
 [33mWARNING:[39m No .m4a files in directory. This program only supports audiofiles in M4A-Format. Exiting program
 [33mWARNING:[39m No .m4a files in directory. This program only supports audiofiles in M4A-Format. Exiting program
+[33mWARNING:[39m No .m4a files in directory. This program only supports audiofiles in M4A-Format. Exiting program
+[33mWARNING:[39m No .m4a files in directory. This program only supports audiofiles in M4A-Format. Exiting program
