@@ -78,7 +78,8 @@ def main_playlist(uri, path, audiofiles):
     sp.complete_tracks_tags(list(tracks.values()))
 
     # multiprocessing part
-    # slower for single track tagging. implementation of multi-core argument needed
+    # slower for single track tagging
+    # To Do: implementation of multi-core argument needed
     ListOfFilenames = list(tracks.items())
     ListOfProcesses = []
     Processors = 4
