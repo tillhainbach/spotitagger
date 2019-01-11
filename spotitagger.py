@@ -8,6 +8,7 @@ import const
 import pprint
 import platform
 import sys
+import multiprocessing
 
 def list_all_m4a_files(path):
     '''return a generator object for all .m4a-files in the directory "path".
@@ -53,6 +54,11 @@ def benchmark (func, *args, **kwargs):
     elapsed_time = timeit.default_timer() - start_time
     print ('%s took %.5f seconds' % (func.__name__,elapsed_time))
 
+def embed_multi(track, path, overwrite):
+    music_file = track [0]
+    trackinfo = track [1]
+    metadata.embed(path, music_file, trackinfo, overwrite = overwrite)
+
 def main_playlist(uri, path, audiofiles):
     '''main function, looks up all audio files in path in playlist uri and embeds
     the metadata taken from spotify web api into the respective audio file.'''
@@ -68,9 +74,34 @@ def main_playlist(uri, path, audiofiles):
         log.warning('None of the audiofiles are in the spotify playlist.')
         return
     tracks = {file : SpotifyTrackObject(result[i]['track']) for file, i in music_files.items()}
+    print(len(tracks.keys()))
     sp.complete_tracks_tags(list(tracks.values()))
-    for music_file, track in tracks.items():
-        metadata.embed(path, music_file, track, overwrite = const.args.overwrite)
+
+    # multiprocessing part
+    # slower for single track tagging. implementation of multi-core argument needed
+    ListOfFilenames = list(tracks.items())
+    ListOfProcesses = []
+    Processors = 4
+    Parts = [ListOfFilenames[i:i + Processors] for i in range(0, len(ListOfFilenames), Processors)]
+
+    for part in Parts:
+        for track in part:
+            p = multiprocessing.Process(target=embed_multi, args=(track, path, const.args.overwrite))
+            # p = multiprocessing.Process(target = print, args = track)
+            p.start()
+            ListOfProcesses.append(p)
+        for p in ListOfProcesses:
+            p.join()
+
+    # single process method:
+    # i = 1
+    # for music_file, track in tracks.items():
+    #     print('embedding tracks... %i tracks embedded.' % i, end = ' \r')
+    #     metadata.embed(path, music_file, track, overwrite = const.args.overwrite)
+    #     i += 1
+
+
+
 
 if __name__ == '__main__':
     # get arguments/default arguments
