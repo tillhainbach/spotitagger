@@ -5,6 +5,7 @@ from configparser import SafeConfigParser
 import re
 import weakref
 import json
+from operator import itemgetter
 
 #helper functions
 def compare_strings(string1, string2):
@@ -192,7 +193,7 @@ class SpotifyHelperTools:
         except IndexError:
             try:
                 remixer = remixer.split("'", 1)[0]
-                search = spotify.search(remixer, limit = 5, type = 'artist')['artists']['items']
+                search = self.sp.search(remixer, limit = 5, type = 'artist')['artists']['items']
                 artist = sorted(search, key=itemgetter('popularity'), reverse=True)[0]
             except IndexError:
                 print('Remixer %s not found on Spotify' % (remixer))
