@@ -99,12 +99,25 @@ class SpotifyHelperTools:
             self.sp.user_playlist_add_tracks(self.id, playlist['id'], tracks)
         print ("Playlist \"" + title + "\" created")
 
-    def fetch_playlist(self, playlist):
+    def fetch_playlist_tracks(self, playlist):
+        '''this functions return the full tracks object'''
         # if not fields:
         #     fields = 'tracks.items(track(!preview_url, available_markets, external_urls, href)), tracks.items(track(album(!artists, external_urls, href, available_markets)))'
-        result = self.sp.playlist(playlist)
-
-        return result
+        result = self.sp.playlist(playlist)['tracks']
+        print('playlist has %s tracks' % result ['total'])
+        # spotify uses paging objects. In each paging object there is a maximu of 100 tracks
+        # under key 'href' a a link web api endpoint with full result.
+        playlist_tracks = result ['items']
+        # define function to get all tracks if playlist has more then 100 tracks
+        def _get_all_tracks(result):
+            nonlocal playlist_tracks
+            result_next = self.sp.next(result)
+            if result_next:
+                playlist_tracks += result_next['items']
+                _get_all_tracks(result_next)
+            return
+        _get_all_tracks(result)
+        return playlist_tracks
 
     def get_tracks_genres(self, ListofSpotifyTrackObjects):
         ids = []
@@ -157,7 +170,7 @@ class SpotifyHelperTools:
         if len(ids) > max_number_query_items:
             repeat = int(len(ids) / max_number_query_items) + 1
             for i in range(repeat):
-                audio_featuress += self.sp.audio_features(ids[max_number_query_items * i : max_number_query_items + max_number_query_items * i])
+                audio_features += self.sp.audio_features(ids[max_number_query_items * i : max_number_query_items + max_number_query_items * i])
         else:
             # print(ids)
             audio_features += self.sp.audio_features(ids)
@@ -215,6 +228,7 @@ class SpotifyHelperTools:
         self.createPlaylist(playlistName, spotifyTrackIDs)
 
 class SpotifyTrackObject:
+
     def __init__(self, metadata):
         self.metadata = metadata
         self._name = metadata['name']
@@ -223,7 +237,7 @@ class SpotifyTrackObject:
         '''looks for the version keywords in the trackname and returns the version
         of a track. eg. "Sample Name (Orginal Mix)" returns ['Orginal Mix']'''
         versiontypes = ['Mix','Edit','Remix','Version','Rework', 'Dub']
-        versiontype_prefixes= {'Disco', '12"', 'Radio', 'Original', 'Orig.', 'Club',
+        versiontype_prefixes = {'Disco', '12"', 'Radio', 'Original', 'Orig.', 'Club',
                                 'VIP', 'Acoustic', 'Instrumental', 'Single',
                                 'DJ','Video', 'Party', 'Main', 'Dub',
                                 'Extended','12" Enxtended','12" Extended Disco',
@@ -250,6 +264,11 @@ class SpotifyTrackObject:
             return self._set_remixers()
 
     def _set_remixers(self):
+        versiontype_prefixes = {'Disco', '12"', 'Radio', 'Original', 'Orig.', 'Club',
+                                'VIP', 'Acoustic', 'Instrumental', 'Single',
+                                'Video', 'Party', 'Main', 'Dub',
+                                'Extended','12" Extended','12" Extended Disco',
+                                'Us', 'USA', 'USA European Connection'}
         versions = self.versions()
         if not versions:
             self.metadata ['remixers'] = [{'name':'', 'index': '', 'id':''}]
@@ -260,6 +279,8 @@ class SpotifyTrackObject:
         eg. Sample Name - Remixerfirst RemixerLast Remix (Editorfirst EditorLast Edit),
         will return ['Remixerfirst RemixerLast', 'Editorfirst EditorLast']'''
         remixers = []
+        # remove any
+        regex = re.compile("(%s)" % "|".join(map(re.escape, versiontype_prefixes)))
         for version in versions:
             findseperator = '(?<=%s)\W' % version
             versionseperator = re.search(findseperator, self._name)
@@ -271,7 +292,9 @@ class SpotifyTrackObject:
                 versionseperator = '\('
             search_string = '(?<=%s)[\'\"\w\s]*(?= %s)' % (versionseperator, version)
             try:
-                remixers.append(re.findall(search_string, self._name)[-0].lstrip())
+                remixer = regex.sub('',re.findall(search_string, self._name)[-0].strip()).strip()
+                if remixer not in remixers:
+                    remixers.append(remixer)
             except IndexError:
                 pass
         if not remixers:
@@ -280,18 +303,25 @@ class SpotifyTrackObject:
             return
         ids = []
         indexes = []
-        for remixer in remixers:
+        for n, remixer in enumerate(remixers):
+            #print(self._name, remixer)
             i = find_in_listed_dict(self.metadata['artists'], 'name', remixer)
-            if not i:
+            if i == None:
                 next(SpotifyHelperTools.getinstances())._remixer_search(self, remixer)
                 i = find_in_listed_dict(self.metadata['artists'], 'name', remixer)
-                if not i:
+                if i == None:
                     ids.append(i)
                 else:
+                    remixers[n] = self.metadata['artists'][i]['name']
                     ids.append(self.metadata['artists'][i]['id'])
             else:
+                # easy way of removing unwanted descriptions from remixer
+                # eg. "DJ Koze's Love Mix" becomes just "DJ Koze"
+                remixers[n] = self.metadata['artists'][i]['name']
                 ids.append(self.metadata['artists'][i]['id'])
             indexes.append(i)
+        # remove duplicates if any.
+        remixers = list(dict.fromkeys(remixers))
         self.metadata ['remixers'] = [{'name':item[0], 'index': item [1], 'id':item[2]} for item in zip(remixers, indexes, ids)]
         return self.metadata ['remixers']
 
