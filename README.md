@@ -2,7 +2,7 @@
 Add metadata to your local audio files using Spotify's metadatabase
 
 # installation and setup
-This project supports only python3! 
+This project is tested only for python >=3.6! 
 
 open a terminal and run:
 ```
