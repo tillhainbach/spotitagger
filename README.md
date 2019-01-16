@@ -17,7 +17,7 @@ pip install -r requirements.txt
 
 # usage
 ```
-python spotitagger.py -p "your spotify playlist id/uri/url" -f "path/to/your/musicfiles"
+python spotitagger.py -p yourspotifyplaylistid/uri/url -f path/to/your/musicfiles
 ```
 
 you can add a default folder and username (and other options) to config.yml
